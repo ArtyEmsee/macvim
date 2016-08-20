@@ -131,7 +131,7 @@ else
 endif
 
 " Names of flaky tests.
-let s:flaky = ['Test_reltime()', 'Test_nb_basic()', 'Test_communicate()']
+let s:flaky = ['Test_reltime()', 'Test_nb_basic()', 'Test_communicate()', 'Test_with_partial_callback()']
 
 " Locate Test_ functions and execute them.
 set nomore
@@ -150,9 +150,16 @@ for s:test in sort(s:tests)
   call RunTheTest(s:test)
 
   if len(v:errors) > 0 && index(s:flaky, s:test) >= 0
-    call add(s:messages, 'Flaky test failed, running it again')
-    let v:errors = []
-    call RunTheTest(s:test)
+    let i = 1
+    while i <= 10
+      call add(s:messages, 'Flaky test failed, running it again')
+      let v:errors = []
+      call RunTheTest(s:test)
+      if len(v:errors) == 0
+        break
+      endif
+      let i += 1
+    endwhile
   endif
 
   if len(v:errors) > 0
